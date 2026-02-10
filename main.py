@@ -9,16 +9,18 @@ st.title("📧 Email Agent")
 email_text = st.text_area("Enter the email content:", height=200)
 recipient_email = st.text_input("Recipient's Email Address:")
 tone = st.selectbox("Select the tone of the response:", ["Formal", "Informal", "Friendly", "Professional"])
+
+
 if st.button("Generate Response"):
-    if email_text and recipient_email:
+    if not recipient_email:
+        st.warning("Please enter the recipient's email address.")
+    else:
         with st.spinner("Generating response..."):
             response = generate_email_response(email_text, tone)
+            send_status = send_email(recipient_email, response)
             st.subheader("Generated Response:")
-            st.write(response)
-
-            if st.button("Send Email"):
-                with st.spinner("Sending email..."):
-                    send_email(recipient_email, "Response to Your Email", response)
-                    st.success("Email sent successfully!")
-    else:
-        st.error("Please enter the email content and recipient's email address.")
+            st.markdown(response, unsafe_allow_html=True)
+            if send_status:
+                st.success("Email sent successfully!")
+            else:
+                st.error("Failed to send email.")
